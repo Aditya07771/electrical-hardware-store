@@ -12,14 +12,17 @@ import {
   PaintBucket, 
   Shield,
   CheckCircle,
-  Filter,
   Grid3X3,
-  List
+  List,
+  X,
+  SlidersHorizontal,
+  ChevronDown,
+  Phone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 // ============================================
 // PRODUCT DATA WITH REAL IMAGES & DESCRIPTIONS
@@ -40,6 +43,7 @@ interface Product {
 interface ProductCategory {
   id: string;
   title: string;
+  shortTitle: string;
   icon: React.ComponentType<{ className?: string }>;
   description: string;
   products: Product[];
@@ -49,6 +53,7 @@ const productCategories: ProductCategory[] = [
   {
     id: 'electrical',
     title: 'Electrical Supplies',
+    shortTitle: 'Electrical',
     icon: Zap,
     description: 'Premium electrical products for residential and commercial installations',
     products: [
@@ -145,6 +150,7 @@ const productCategories: ProductCategory[] = [
   {
     id: 'hardware',
     title: 'Power Tools & Hardware',
+    shortTitle: 'Hardware',
     icon: Wrench,
     description: 'Professional-grade tools and hardware for every project',
     products: [
@@ -241,6 +247,7 @@ const productCategories: ProductCategory[] = [
   {
     id: 'plumbing',
     title: 'Plumbing Supplies',
+    shortTitle: 'Plumbing',
     icon: Droplets,
     description: 'Quality plumbing materials for leak-free installations',
     products: [
@@ -315,6 +322,7 @@ const productCategories: ProductCategory[] = [
   {
     id: 'paint',
     title: 'Paints & Accessories',
+    shortTitle: 'Paints',
     icon: PaintBucket,
     description: 'Premium paints and painting accessories for every surface',
     products: [
@@ -342,7 +350,7 @@ const productCategories: ProductCategory[] = [
       },
       {
         id: 25,
-        name: 'Professional Paint Brush Set',
+        name: 'Paint Brush Set',
         brand: 'Asian Paints, Wooster',
         description: 'High-quality bristle brushes in multiple sizes. Perfect for all paint types and finishes.',
         image: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?w=400&h=300&fit=crop',
@@ -389,6 +397,7 @@ const productCategories: ProductCategory[] = [
   {
     id: 'safety',
     title: 'Safety Equipment',
+    shortTitle: 'Safety',
     icon: Shield,
     description: 'Industrial safety gear for workplace protection',
     products: [
@@ -470,6 +479,8 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
 
   // WhatsApp Owner Number
   const WHATSAPP_NUMBER = '916306459098';
@@ -517,21 +528,28 @@ Thank you!
 
   const filteredProducts = getFilteredProducts();
 
+  // Get active category name
+  const getActiveCategoryName = () => {
+    if (activeCategory === 'all') return 'All Products';
+    const category = productCategories.find(c => c.id === activeCategory);
+    return category?.shortTitle || 'All Products';
+  };
+
   // Render star rating
   const renderRating = (rating: number) => {
     return (
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
-            className={`w-4 h-4 ${
+            className={`w-3 h-3 sm:w-4 sm:h-4 ${
               i < Math.floor(rating)
                 ? 'fill-yellow-400 text-yellow-400'
                 : 'text-gray-300'
             }`}
           />
         ))}
-        <span className="text-sm text-muted-foreground ml-1">({rating})</span>
+        <span className="text-xs sm:text-sm text-muted-foreground ml-1">({rating})</span>
       </div>
     );
   };
@@ -542,7 +560,7 @@ Thank you!
       
       <main>
         {/* ==================== HERO SECTION ==================== */}
-        <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 py-20 overflow-hidden">
+        <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 py-12 sm:py-16 md:py-20 overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{
@@ -552,65 +570,153 @@ Thank you!
 
           <div className="container mx-auto px-4 relative z-10">
             <div className="text-center">
-              <Badge className="mb-4 bg-yellow-500 text-black font-semibold px-4 py-1">
+              <Badge className="mb-3 sm:mb-4 bg-yellow-500 text-black font-semibold px-3 py-1 text-xs sm:text-sm">
                 5000+ Products In Stock
               </Badge>
-              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+              <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">
                 Quality Products for
-                <span className="text-yellow-400 block mt-2">Every Project</span>
+                <span className="text-yellow-400 block mt-1 sm:mt-2">Every Project</span>
               </h1>
-              <p className="text-blue-100 max-w-2xl mx-auto text-lg mb-8">
-                Shop from India's most trusted brands in electrical, hardware, plumbing & safety equipment
+              <p className="text-blue-100 max-w-2xl mx-auto text-sm sm:text-base md:text-lg mb-6 sm:mb-8 px-4">
+                Shop from India's most trusted brands in electrical, hardware, plumbing & safety
               </p>
 
               {/* Search Bar */}
-              <div className="max-w-2xl mx-auto relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <div className="max-w-xl mx-auto relative px-2">
+                <Search className="absolute left-5 sm:left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <Input
                   type="text"
-                  placeholder="Search products, brands, or categories..."
+                  placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-6 text-lg rounded-full border-0 shadow-lg"
+                  className="pl-10 sm:pl-12 pr-4 py-5 sm:py-6 text-sm sm:text-base rounded-full border-0 shadow-lg w-full"
                 />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* ==================== CATEGORY FILTER ==================== */}
-        <section className="py-8 bg-white border-b sticky top-0 z-40 shadow-sm">
+        {/* ==================== MOBILE CATEGORY DROPDOWN ==================== */}
+        <div className="md:hidden sticky top-0 z-40 bg-white border-b shadow-sm">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center gap-2">
+              {/* Category Dropdown Button */}
+              <button
+                onClick={() => setShowMobileFilter(!showMobileFilter)}
+                className="flex-1 flex items-center justify-between px-4 py-2.5 bg-gray-100 rounded-lg text-sm font-medium"
+              >
+                <span className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4" />
+                  {getActiveCategoryName()}
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showMobileFilter ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* View Toggle */}
+              <div className="flex items-center bg-gray-100 p-1 rounded-lg">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Category Dropdown Menu */}
+            {showMobileFilter && (
+              <div className="absolute left-0 right-0 top-full bg-white border-b shadow-lg z-50 max-h-[60vh] overflow-y-auto">
+                <div className="p-2">
+                  <button
+                    onClick={() => { setActiveCategory('all'); setShowMobileFilter(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left ${
+                      activeCategory === 'all' ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <Package className="w-5 h-5" />
+                    <div>
+                      <p className="font-medium">All Products</p>
+                      <p className="text-xs text-muted-foreground">Browse everything</p>
+                    </div>
+                    {activeCategory === 'all' && <CheckCircle className="w-5 h-5 ml-auto text-blue-600" />}
+                  </button>
+
+                  {productCategories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => { setActiveCategory(category.id); setShowMobileFilter(false); }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left ${
+                        activeCategory === category.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <category.icon className="w-5 h-5" />
+                      <div>
+                        <p className="font-medium">{category.title}</p>
+                        <p className="text-xs text-muted-foreground">{category.products.length} products</p>
+                      </div>
+                      {activeCategory === category.id && <CheckCircle className="w-5 h-5 ml-auto text-blue-600" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ==================== DESKTOP CATEGORY FILTER ==================== */}
+        <section className="hidden md:block py-4 bg-white border-b sticky top-0 z-40 shadow-sm">
           <div className="container mx-auto px-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              {/* Category Pills */}
-              <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between gap-4">
+              {/* Horizontal Scrollable Categories */}
+              <div 
+                ref={categoryScrollRef}
+                className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
                 <Button
                   variant={activeCategory === 'all' ? 'default' : 'outline'}
                   onClick={() => setActiveCategory('all')}
-                  className="rounded-full"
+                  className="rounded-full whitespace-nowrap flex-shrink-0"
+                  size="sm"
                 >
-                  <Package className="w-4 h-4 mr-2" />
-                  All Products
+                  <Package className="w-4 h-4 mr-1.5" />
+                  All
                 </Button>
                 {productCategories.map((category) => (
                   <Button
                     key={category.id}
                     variant={activeCategory === category.id ? 'default' : 'outline'}
                     onClick={() => setActiveCategory(category.id)}
-                    className="rounded-full"
+                    className="rounded-full whitespace-nowrap flex-shrink-0"
+                    size="sm"
                   >
-                    <category.icon className="w-4 h-4 mr-2" />
-                    {category.title}
+                    <category.icon className="w-4 h-4 mr-1.5" />
+                    {category.shortTitle}
                   </Button>
                 ))}
               </div>
 
               {/* View Toggle */}
-              <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+              <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg flex-shrink-0">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
+                  className="h-8 w-8 p-0"
                 >
                   <Grid3X3 className="w-4 h-4" />
                 </Button>
@@ -618,6 +724,7 @@ Thank you!
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('list')}
+                  className="h-8 w-8 p-0"
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -627,63 +734,73 @@ Thank you!
         </section>
 
         {/* ==================== PRODUCTS GRID ==================== */}
-        <section className="py-12">
-          <div className="container mx-auto px-4">
+        <section className="py-6 sm:py-8 md:py-12">
+          <div className="container mx-auto px-3 sm:px-4">
             {/* Results Count */}
-            <div className="flex items-center justify-between mb-8">
-              <p className="text-muted-foreground">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Showing <span className="font-semibold text-foreground">{filteredProducts.length}</span> products
               </p>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-xs sm:text-sm text-blue-600 hover:underline"
+                >
+                  Clear search
+                </button>
+              )}
             </div>
 
             {/* Grid View */}
             {viewMode === 'grid' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                 {filteredProducts.map((product) => (
                   <div
                     key={product.id}
-                    className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    className="group bg-white rounded-xl sm:rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   >
                     {/* Product Image */}
-                    <div className="relative h-48 overflow-hidden bg-gray-100">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                       <img
                         src={product.image}
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop';
                         }}
                       />
                       {product.inStock && (
-                        <Badge className="absolute top-3 left-3 bg-green-500">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          In Stock
+                        <Badge className="absolute top-2 left-2 bg-green-500 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                          <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                          <span className="hidden sm:inline">In Stock</span>
+                          <span className="sm:hidden">Stock</span>
                         </Badge>
                       )}
                     </div>
 
                     {/* Product Info */}
-                    <div className="p-5">
-                      <div className="mb-3">
+                    <div className="p-3 sm:p-4 md:p-5">
+                      <div className="mb-2">
                         {renderRating(product.rating)}
                       </div>
                       
-                      <h3 className="font-heading font-bold text-lg text-gray-900 mb-1 line-clamp-1">
+                      <h3 className="font-heading font-bold text-sm sm:text-base md:text-lg text-gray-900 mb-0.5 sm:mb-1 line-clamp-1">
                         {product.name}
                       </h3>
                       
-                      <p className="text-sm text-blue-600 font-medium mb-2">
+                      <p className="text-xs sm:text-sm text-blue-600 font-medium mb-1.5 sm:mb-2 line-clamp-1">
                         {product.brand}
                       </p>
                       
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 line-clamp-2 hidden sm:block">
                         {product.description}
                       </p>
 
-                      {/* Features */}
-                      <div className="flex flex-wrap gap-1 mb-4">
+                      {/* Features - Hidden on very small screens */}
+                      <div className="hidden sm:flex flex-wrap gap-1 mb-3">
                         {product.features.slice(0, 2).map((feature, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
+                          <Badge key={index} variant="secondary" className="text-[10px] sm:text-xs px-1.5 py-0.5">
                             {feature}
                           </Badge>
                         ))}
@@ -692,10 +809,11 @@ Thank you!
                       {/* Enquire Button */}
                       <Button
                         onClick={() => openWhatsAppEnquiry(product)}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white gap-2 rounded-xl"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white gap-1 sm:gap-2 rounded-lg sm:rounded-xl text-xs sm:text-sm h-9 sm:h-10"
                       >
-                        <MessageCircle className="w-4 h-4" />
-                        Enquire Now
+                        <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="hidden xs:inline">Enquire</span>
+                        <span className="xs:hidden">Ask</span>
                       </Button>
                     </div>
                   </div>
@@ -705,53 +823,54 @@ Thank you!
 
             {/* List View */}
             {viewMode === 'list' && (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {filteredProducts.map((product) => (
                   <div
                     key={product.id}
-                    className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row"
+                    className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex"
                   >
                     {/* Product Image */}
-                    <div className="relative w-full md:w-64 h-48 md:h-auto flex-shrink-0">
+                    <div className="relative w-24 sm:w-32 md:w-48 flex-shrink-0">
                       <img
                         src={product.image}
                         alt={product.name}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop';
                         }}
                       />
                       {product.inStock && (
-                        <Badge className="absolute top-3 left-3 bg-green-500">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          In Stock
+                        <Badge className="absolute top-2 left-2 bg-green-500 text-[10px] px-1.5 py-0.5">
+                          ✓
                         </Badge>
                       )}
                     </div>
 
                     {/* Product Info */}
-                    <div className="flex-1 p-6 flex flex-col justify-between">
+                    <div className="flex-1 p-3 sm:p-4 md:p-5 flex flex-col justify-between min-w-0">
                       <div>
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-heading font-bold text-xl text-gray-900 mb-1">
-                              {product.name}
-                            </h3>
-                            <p className="text-blue-600 font-medium">
-                              {product.brand}
-                            </p>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h3 className="font-heading font-bold text-sm sm:text-base md:text-lg text-gray-900 line-clamp-1">
+                            {product.name}
+                          </h3>
+                          <div className="hidden sm:block flex-shrink-0">
+                            {renderRating(product.rating)}
                           </div>
-                          {renderRating(product.rating)}
                         </div>
                         
-                        <p className="text-muted-foreground mb-4">
+                        <p className="text-xs sm:text-sm text-blue-600 font-medium mb-1 line-clamp-1">
+                          {product.brand}
+                        </p>
+                        
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2 hidden md:block">
                           {product.description}
                         </p>
 
                         {/* Features */}
-                        <div className="flex flex-wrap gap-2 mb-4">
+                        <div className="hidden md:flex flex-wrap gap-1.5 mb-3">
                           {product.features.map((feature, index) => (
-                            <Badge key={index} variant="secondary">
+                            <Badge key={index} variant="secondary" className="text-xs">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               {feature}
                             </Badge>
@@ -762,10 +881,11 @@ Thank you!
                       {/* Enquire Button */}
                       <Button
                         onClick={() => openWhatsAppEnquiry(product)}
-                        className="bg-green-600 hover:bg-green-700 text-white gap-2 w-full md:w-auto"
+                        className="bg-green-600 hover:bg-green-700 text-white gap-1.5 w-full sm:w-auto text-xs sm:text-sm h-8 sm:h-9"
+                        size="sm"
                       >
-                        <MessageCircle className="w-4 h-4" />
-                        Enquire on WhatsApp
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        Enquire
                       </Button>
                     </div>
                   </div>
@@ -775,13 +895,16 @@ Thank you!
 
             {/* No Results */}
             {filteredProducts.length === 0 && (
-              <div className="text-center py-16">
-                <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
-                <p className="text-muted-foreground mb-4">
-                  Try adjusting your search or filter to find what you're looking for
+              <div className="text-center py-12 sm:py-16">
+                <Package className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 px-4">
+                  Try adjusting your search or filter
                 </p>
-                <Button onClick={() => { setSearchQuery(''); setActiveCategory('all'); }}>
+                <Button 
+                  onClick={() => { setSearchQuery(''); setActiveCategory('all'); }}
+                  size="sm"
+                >
                   Clear Filters
                 </Button>
               </div>
@@ -790,28 +913,34 @@ Thank you!
         </section>
 
         {/* ==================== CTA SECTION ==================== */}
-        <section className="py-16 bg-gradient-to-r from-yellow-400 to-orange-500">
+        <section className="py-10 sm:py-12 md:py-16 bg-gradient-to-r from-yellow-400 to-orange-500">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-              <div className="text-center lg:text-left">
-                <h2 className="font-heading text-3xl md:text-4xl font-bold text-black mb-4">
+            <div className="text-center md:text-left md:flex md:items-center md:justify-between gap-6">
+              <div className="mb-6 md:mb-0">
+                <h2 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-black mb-2 sm:mb-3">
                   Can't find what you need?
                 </h2>
-                <p className="text-black/80 max-w-xl text-lg">
-                  We stock over <strong>5000+ products</strong>. Contact us for specific requirements, bulk orders, or special items.
+                <p className="text-black/80 text-sm sm:text-base max-w-xl">
+                  We stock over <strong>5000+ products</strong>. Contact us for specific requirements or bulk orders.
                 </p>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a href="tel:6306459098">
-                  <Button size="lg" className="bg-black hover:bg-gray-900 text-white font-semibold rounded-full px-8">
-                    📞 Call: 6306459098
+              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-end">
+                <a href="tel:6306459098" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto bg-black hover:bg-gray-900 text-white font-semibold rounded-full px-6">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call Us
                   </Button>
                 </a>
-                <a href={`https://wa.me/916306459098?text=${encodeURIComponent("Hi! I need a product that's not listed on your website.")}`} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" variant="outline" className="border-2 border-black text-black hover:bg-black hover:text-white font-semibold rounded-full px-8">
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    WhatsApp Us
+                <a 
+                  href={`https://wa.me/916306459098?text=${encodeURIComponent("Hi! I need a product that's not listed on your website.")}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto"
+                >
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto border-2 border-black text-black hover:bg-black hover:text-white font-semibold rounded-full px-6">
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    WhatsApp
                   </Button>
                 </a>
               </div>
@@ -820,19 +949,19 @@ Thank you!
         </section>
 
         {/* ==================== TRUST BADGES ==================== */}
-        <section className="py-12 bg-white">
+        <section className="py-8 sm:py-10 md:py-12 bg-white">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
               {[
-                { icon: '✅', label: 'Genuine Products', desc: '100% Authentic' },
-                { icon: '🚚', label: 'Fast Delivery', desc: 'Same Day Available' },
-                { icon: '💰', label: 'Best Prices', desc: 'Wholesale Rates' },
-                { icon: '🛡️', label: 'Warranty', desc: 'Manufacturer Warranty' },
+                { icon: '✅', label: 'Genuine', desc: '100% Authentic' },
+                { icon: '🚚', label: 'Fast Delivery', desc: 'Same Day' },
+                { icon: '💰', label: 'Best Prices', desc: 'Wholesale' },
+                { icon: '🛡️', label: 'Warranty', desc: 'Guaranteed' },
               ].map((badge, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-4xl mb-2">{badge.icon}</div>
-                  <h4 className="font-semibold text-gray-900">{badge.label}</h4>
-                  <p className="text-sm text-muted-foreground">{badge.desc}</p>
+                <div key={index} className="text-center p-3 sm:p-4 rounded-xl bg-gray-50">
+                  <div className="text-2xl sm:text-3xl md:text-4xl mb-1 sm:mb-2">{badge.icon}</div>
+                  <h4 className="font-semibold text-gray-900 text-xs sm:text-sm md:text-base">{badge.label}</h4>
+                  <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">{badge.desc}</p>
                 </div>
               ))}
             </div>
