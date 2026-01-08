@@ -10,7 +10,11 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                
+                <img 
+                  src="./ammaji_logo.png" 
+                  alt="Ammaji Hardware & Electricals Logo" 
+                  className="w-12 h-12 object-contain "
+                />
               </div>
               <div className="flex flex-col">
                 <span className="font-heading font-bold text-lg text-secondary-foreground">Ammaji</span>
