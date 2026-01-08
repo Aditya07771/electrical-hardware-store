@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Zap className="w-6 h-6 text-accent" />
+                
               </div>
               <div className="flex flex-col">
                 <span className="font-heading font-bold text-lg text-secondary-foreground">Ammaji</span>
