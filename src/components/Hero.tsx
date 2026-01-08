@@ -28,7 +28,7 @@ const Hero = () => {
         <Zap className="absolute top-1/2 right-20 w-10 h-10 text-accent/35 animate-spark" style={{ animationDelay: '1.4s' }} />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 top-5">
         <div className="max-w-3xl">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 border border-accent/40 mb-8 animate-slide-up backdrop-blur-sm">
@@ -66,7 +66,7 @@ const Hero = () => {
           </div>
 
           {/* Trust Indicators */}
-          <div className="mt-16 grid grid-cols-3 gap-6 max-w-md animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          <div className="mt-10 grid grid-cols-3 gap-6 max-w-md animate-slide-up " style={{ animationDelay: '0.4s' }}>
             <div className="text-center group">
               <div className="text-3xl md:text-4xl font-heading font-bold text-accent group-hover:scale-110 transition-transform duration-300">15+</div>
               <div className="text-sm text-white/70">Years Trust</div>
