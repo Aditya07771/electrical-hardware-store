@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Zap, MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { Zap, MapPin, Phone, Mail, Clock, User } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -13,7 +13,7 @@ const Footer = () => {
                 <img 
                   src="./ammaji_logo.png" 
                   alt="Ammaji Hardware & Electricals Logo" 
-                  className="w-12 h-12 object-contain "
+                  className="w-12 h-12 object-contain"
                 />
               </div>
               <div className="flex flex-col">
@@ -21,9 +21,20 @@ const Footer = () => {
                 <span className="text-xs text-secondary-foreground/70">Electricals & Hardware</span>
               </div>
             </Link>
-            <p className="text-secondary-foreground/80 text-sm leading-relaxed">
+            <p className="text-secondary-foreground/80 text-sm leading-relaxed mb-4">
               Your trusted partner for quality electrical and hardware products in Mysore since 2010.
             </p>
+            
+            {/* Owner Badge */}
+            <div className="inline-flex items-center gap-2 bg-primary/10 px-3 py-2 rounded-lg border border-primary/20">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-secondary-foreground/60">Proprietor</span>
+                <span className="text-sm font-semibold text-secondary-foreground">Er. Raghuvir</span>
+              </div>
+            </div>
           </div>
 
           {/* Quick Links */}
