@@ -9,11 +9,12 @@ const Hero = () => {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img 
-          src="./hero-store.png" 
+          src="./hero-store.png"
           alt="Ammaji Hardware & Electricals Store" 
           className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/70 via-navy/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/60 to-black/40" />
+        {/* <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" /> */}
       </div>
 
       {/* Animated Background Elements */}
